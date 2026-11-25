@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0f17" />
+  <title>Brain IDE</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-title">Brain IDE</span>
+        <span id="offline-badge" class="badge">Offline</span>
+      </div>
+      <div class="topbar-actions">
+        <button id="btn-files" class="icon-btn" type="button" title="Gerir ficheiros .brain" aria-label="Gerir ficheiros">📁 Ficheiros</button>
+        <button id="btn-font-dec" class="icon-btn" type="button" title="Diminuir letra" aria-label="Diminuir letra">A-</button>
+        <button id="btn-font-inc" class="icon-btn" type="button" title="Aumentar letra" aria-label="Aumentar letra">A+</button>
+        <button id="btn-theme" class="icon-btn" type="button" title="Alternar tema" aria-label="Alternar tema">☀️</button>
+      </div>
+    </header>
+
+    <nav class="modebar" aria-label="Modos de execução">
+      <button id="btn-mode-program" class="mode-chip active" type="button">Modo programa</button>
+      <button id="btn-mode-repl" class="mode-chip" type="button">Modo REPL (&gt;&gt;&gt;)</button>
+    </nav>
+
+    <main id="workspace" class="workspace">
+      <section id="editor-panel" class="panel editor-panel">
+        <div class="panel-header">
+          <div class="file-meta">
+            <span id="active-filename" class="filename">ola_brain.brain</span>
+            <span id="unsaved-dot" class="unsaved-dot hidden" title="Alterações por guardar">*</span>
+            <span id="line-count" class="muted">1 linhas</span>
+          </div>
+          <button id="btn-save-quick" class="small-btn" type="button">Guardar</button>
+        </div>
+
+        <div class="editor-body">
+          <pre id="line-numbers" class="gutter" aria-hidden="true">1</pre>
+          <div class="code-stack">
+            <pre id="code-highlight" class="code-highlight" aria-hidden="true"></pre>
+            <textarea
+              id="code-editor"
+              class="code-input"
+              spellcheck="false"
+              autocapitalize="off"
+              autocomplete="off"
+              autocorrect="off"
+              placeholder="# Escreva código Brain aqui..."
+            ></textarea>
+          </div>
+        </div>
+
+        <div id="aux-bar" class="aux-bar" role="toolbar" aria-label="Teclado auxiliar">
+          <button type="button" class="aux-key" data-insert="=">=</button>
+          <button type="button" class="aux-key" data-insert='"'>"</button>
+          <button type="button" class="aux-key" data-insert="+">+</button>
+          <button type="button" class="aux-key" data-insert="-">-</button>
+          <button type="button" class="aux-key" data-insert="*">*</button>
+          <button type="button" class="aux-key" data-insert="/">/</button>
+          <button type="button" class="aux-key" data-insert="(">(</button>
+          <button type="button" class="aux-key" data-insert=")">)</button>
+          <button type="button" class="aux-key" data-insert="tab">tab</button>
+        </div>
+      </section>
+
+      <section id="console-panel" class="panel console-panel">
+        <div class="panel-header">
+          <div class="console-title-wrap">
+            <span id="console-title" class="panel-title">Consola</span>
+            <span id="prog-buffer-badge" class="badge hidden">PROG:0</span>
+          </div>
+          <div class="console-actions">
+            <button id="btn-run" class="action-btn run" type="button">▶ Executar</button>
+            <button id="btn-stop" class="action-btn stop" type="button" disabled>■ Parar</button>
+            <button id="btn-clear" class="small-btn" type="button">Limpar</button>
+          </div>
+        </div>
+
+        <div id="console-output" class="console-output" aria-live="polite"></div>
+
+        <form id="scanln-form" class="inline-form hidden">
+          <label id="scanln-label" for="scanln-input" class="prompt-prefix">Digite:</label>
+          <input id="scanln-input" type="text" autocomplete="off" />
+          <button class="action-btn run" type="submit">Enviar</button>
+        </form>
+
+        <div id="repl-controls" class="repl-controls hidden">
+          <div class="quick-chips">
+            <button type="button" class="chip-btn" data-cmd=".help">.help</button>
+            <button type="button" class="chip-btn" data-cmd="show.vars">show.vars</button>
+            <button type="button" class="chip-btn" data-cmd="IA.programa">IA.programa</button>
+            <button type="button" class="chip-btn" data-cmd=".run">.run</button>
+            <button type="button" class="chip-btn" data-cmd=".version">.version</button>
+          </div>
+          <form id="repl-form" class="inline-form">
+            <span id="repl-prompt" class="prompt-prefix">&gt;&gt;&gt;</span>
+            <input id="repl-input" type="text" placeholder="Comando Brain..." autocomplete="off" autocapitalize="off" />
+            <button class="action-btn run" type="submit">Enviar</button>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="file-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="file-modal-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="file-modal-title">Ficheiros (.brain)</h2>
+        <button id="btn-close-modal" class="icon-btn" type="button" aria-label="Fechar">✕</button>
+      </div>
+      <div class="modal-actions">
+        <button id="btn-new-file" class="small-btn" type="button">+ Novo</button>
+        <button id="btn-save-file" class="small-btn" type="button">Guardar</button>
+        <button id="btn-save-as" class="small-btn" type="button">Guardar como</button>
+        <button id="btn-export-file" class="small-btn" type="button">Exportar .brain</button>
+        <label class="small-btn file-upload-label">
+          Importar .brain
+          <input id="input-import-file" type="file" accept=".brain,.txt,text/plain" hidden />
+        </label>
+      </div>
+      <div id="file-list" class="file-list"></div>
+    </div>
+  </div>
+
+  <script src="./idb-files.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
