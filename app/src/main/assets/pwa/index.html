@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
+  <meta name="theme-color" content="#0b0f17" />
+  <title>Brain IDE</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-title">Brain IDE</span>
+        <span id="offline-badge" class="badge">Offline</span>
+      </div>
+      <div class="topbar-actions">
+        <button id="btn-new-top" class="icon-btn" type="button" title="Novo ficheiro" aria-label="Novo ficheiro">＋</button>
+        <button id="btn-files" class="icon-btn" type="button" title="Gerir ficheiros .brain" aria-label="Gerir ficheiros">📁</button>
+        <button id="btn-save-quick" class="icon-btn" type="button" title="Guardar" aria-label="Guardar">💾</button>
+        <button id="btn-font-dec" class="icon-btn" type="button" title="Diminuir letra" aria-label="Diminuir letra">A-</button>
+        <button id="btn-font-inc" class="icon-btn" type="button" title="Aumentar letra" aria-label="Aumentar letra">A+</button>
+        <button id="btn-theme" class="icon-btn" type="button" title="Alternar tema" aria-label="Alternar tema">☀️</button>
+      </div>
+    </header>
+
+    <nav class="tabbar" role="tablist" aria-label="Vistas da IDE">
+      <button id="tab-editor" class="tab-btn active" type="button" role="tab" aria-selected="true">Editor</button>
+      <button id="tab-console" class="tab-btn" type="button" role="tab" aria-selected="false">Consola</button>
+      <button id="tab-repl" class="tab-btn" type="button" role="tab" aria-selected="false">REPL (&gt;&gt;&gt;)</button>
+    </nav>
+
+    <main id="workspace" class="workspace">
+      <section id="editor-panel" class="panel editor-panel">
+        <div class="panel-header slim">
+          <div class="file-meta">
+            <span id="active-filename" class="filename">ola_brain.brain</span>
+            <span id="unsaved-dot" class="unsaved-dot hidden" title="Alterações por guardar">*</span>
+          </div>
+          <span id="line-count" class="muted">1 ln</span>
+        </div>
+
+        <div class="editor-body">
+          <pre id="line-numbers" class="gutter" aria-hidden="true">1</pre>
+          <div class="code-stack">
+            <pre id="code-highlight" class="code-highlight" aria-hidden="true"></pre>
+            <textarea
+              id="code-editor"
+              class="code-input"
+              spellcheck="false"
+              autocapitalize="off"
+              autocomplete="off"
+              autocorrect="off"
+              placeholder="# Escreva código Brain aqui..."
+            ></textarea>
+          </div>
+          <button id="btn-run-fab" class="fab-run" type="button" title="Executar código" aria-label="Executar código">▶</button>
+        </div>
+
+        <div id="autocomplete-bar" class="autocomplete-bar hidden" role="listbox" aria-label="Sugestões Brain"></div>
+
+        <div id="aux-bar" class="aux-bar" role="toolbar" aria-label="Teclado auxiliar">
+          <button type="button" class="aux-key" data-insert="=">=</button>
+          <button type="button" class="aux-key" data-insert='"'>"</button>
+          <button type="button" class="aux-key" data-insert="+">+</button>
+          <button type="button" class="aux-key" data-insert="-">-</button>
+          <button type="button" class="aux-key" data-insert="*">*</button>
+          <button type="button" class="aux-key" data-insert="/">/</button>
+          <button type="button" class="aux-key" data-insert="(">(</button>
+          <button type="button" class="aux-key" data-insert=")">)</button>
+          <button type="button" class="aux-key" data-insert="tab">tab</button>
+        </div>
+      </section>
+
+      <section id="console-panel" class="panel console-panel hidden">
+        <div class="panel-header slim">
+          <div class="console-title-wrap">
+            <button id="btn-back-editor" class="back-btn" type="button">← Editor</button>
+            <span id="console-title" class="panel-title">Consola</span>
+            <span id="prog-buffer-badge" class="badge hidden">PROG:0</span>
+          </div>
+          <div class="console-actions">
+            <button id="btn-run" class="compact-action run" type="button" title="Executar novamente" aria-label="Executar">▶</button>
+            <button id="btn-stop" class="compact-action stop" type="button" title="Parar" aria-label="Parar" disabled>■</button>
+            <button id="btn-clear" class="compact-action" type="button" title="Limpar" aria-label="Limpar">🗑</button>
+          </div>
+        </div>
+
+        <div id="console-output" class="console-output" aria-live="polite"></div>
+
+        <form id="scanln-form" class="inline-form hidden">
+          <label id="scanln-label" for="scanln-input" class="prompt-prefix">Digite:</label>
+          <input id="scanln-input" type="text" autocomplete="off" />
+          <button class="action-btn run" type="submit">Enviar</button>
+        </form>
+
+        <div id="repl-controls" class="repl-controls hidden">
+          <div class="quick-chips">
+            <button type="button" class="chip-btn" data-cmd=".help">.help</button>
+            <button type="button" class="chip-btn" data-cmd="show.vars">show.vars</button>
+            <button type="button" class="chip-btn" data-cmd="IA.programa">IA.programa</button>
+            <button type="button" class="chip-btn" data-cmd=".run">.run</button>
+            <button type="button" class="chip-btn" data-cmd=".version">.version</button>
+          </div>
+          <div id="repl-autocomplete-bar" class="autocomplete-bar hidden" role="listbox" aria-label="Sugestões REPL"></div>
+          <form id="repl-form" class="inline-form">
+            <span id="repl-prompt" class="prompt-prefix">&gt;&gt;&gt;</span>
+            <input id="repl-input" type="text" placeholder="Comando Brain..." autocomplete="off" autocapitalize="off" />
+            <button class="action-btn run" type="submit">Enviar</button>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="file-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="file-modal-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="file-modal-title">Ficheiros (.brain)</h2>
+        <button id="btn-close-modal" class="icon-btn" type="button" aria-label="Fechar">✕</button>
+      </div>
+      <div class="modal-actions">
+        <button id="btn-new-file" class="small-btn" type="button">+ Novo</button>
+        <button id="btn-save-file" class="small-btn" type="button">Guardar</button>
+        <button id="btn-save-as" class="small-btn" type="button">Como</button>
+        <button id="btn-export-file" class="small-btn" type="button">Exportar</button>
+        <label class="small-btn file-upload-label">
+          Importar
+          <input id="input-import-file" type="file" accept=".brain,.txt,text/plain" hidden />
+        </label>
+      </div>
+      <div id="file-list" class="file-list"></div>
+    </div>
+  </div>
+
+  <div id="new-file-dialog" class="modal centered hidden" role="dialog" aria-modal="true" aria-labelledby="new-file-title">
+    <form id="new-file-form" class="dialog-card">
+      <h2 id="new-file-title">Novo Ficheiro</h2>
+      <input id="new-file-name-input" type="text" placeholder="meu_programa" autocomplete="off" autocapitalize="off" required />
+      <p class="muted">A extensão .brain é adicionada automaticamente.</p>
+      <div class="dialog-actions">
+        <button id="btn-cancel-new-file" class="small-btn" type="button">Cancelar</button>
+        <button class="action-btn run" type="submit">Criar</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="./idb-files.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
