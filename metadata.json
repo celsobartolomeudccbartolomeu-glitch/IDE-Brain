@@ -1,6 +1,0 @@
-{
-  "name": "Brain IDE",
-  "description": "IDE mobile-first offline para Brain Language com interpretador seguro, editor com realce de sintaxe, consola interativa e gestor de ficheiros .brain.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
